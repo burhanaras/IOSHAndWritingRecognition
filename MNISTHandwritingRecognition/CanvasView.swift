@@ -8,6 +8,7 @@
 
 import UIKit
 
+
 class CanvasView: UIView {
 
     // Properties for line drawing
@@ -16,6 +17,7 @@ class CanvasView: UIView {
     var path:UIBezierPath!
     var touchPoint:CGPoint!
     var startingPoint:CGPoint!
+    var canvasDelegate: CanvasDelegate!
     
     override func layoutSubviews() {
         self.clipsToBounds = true // no lines should be visible outside of the view
@@ -31,6 +33,7 @@ class CanvasView: UIView {
         // get the touch position when user starts drawing
         let touch = touches.first
         startingPoint = touch?.location(in: self)
+        NSObject.cancelPreviousPerformRequests(withTarget: self)
     }
     
     override func touchesMoved(_ touches: Set<UITouch>, with event: UIEvent?) {
@@ -48,8 +51,19 @@ class CanvasView: UIView {
         startingPoint = touchPoint
         
         drawShapeLayer() // draws the actual line shapes
+      
+      print("Point: \(String(describing: touch?.location(in: self)))")
     }
-    
+  
+  override func touchesEnded(_ touches: Set<UITouch>, with event: UIEvent?) {
+    NSObject.cancelPreviousPerformRequests(withTarget: self)
+    perform(#selector(onCanvasEditFinished), with: nil, afterDelay: 1)
+  }
+  
+  @objc func onCanvasEditFinished(){
+    canvasDelegate?.onCanvasEditFinished()
+  }
+  
     func drawShapeLayer() {
         
         let shapeLayer = CAShapeLayer()
@@ -81,6 +95,10 @@ class CanvasView: UIView {
         // Drawing code
     }
     */
+  
+  func setDelegate(delegate: CanvasDelegate){
+    self.canvasDelegate = delegate
+  }
 
 }
 
